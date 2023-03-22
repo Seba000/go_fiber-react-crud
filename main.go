@@ -31,10 +31,6 @@ func main() {
 	//rutas
 	app.Static("/", "./client/dist")
 	
-	app.Get("/users", func(c *fiber.Ctx)error {
-		return c.JSON(&fiber.Map{"data": "users desde el backend",
-		})
-	})
 
 	app.Post("/users", func(c *fiber.Ctx)error {
 		var user models.User
@@ -48,20 +44,26 @@ func main() {
 		})
 	})
 
-	app.Get("/users", func(c *fiber.Ctx)error{
+	app.Get("/users", func(c *fiber.Ctx) error {
 		var users []models.User
+
 		coll := client.Database("gomongodb").Collection("users")
 		results, error := coll.Find(context.TODO(), bson.M{})
 
 		if error != nil {
 			panic(error)
 		}
+
 		for results.Next(context.TODO()) {
 			var user models.User
 			results.Decode(&user)
 			users = append(users, user)
 		}
-		return c.JSON(&fiber.Map{"data": users,})
+
+		return c.JSON(&fiber.Map{
+			"users": users,
+		})
+
 	})
 
 	//puerto
