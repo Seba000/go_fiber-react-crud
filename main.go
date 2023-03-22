@@ -9,6 +9,8 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+
+	"github.com/seba000/go_fiber-react-crud/models"
 )
 
 func main() {
@@ -22,10 +24,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	coll := client.Database("gomongodb").Collection("users")
-	coll.InsertOne(context.TODO(), bson.D{{Key: "name", Value: "seba",}})
-
-
+	
 	//cors para abilitar la conexion desde el front
 	app.Use(cors.New())
 
@@ -38,8 +37,14 @@ func main() {
 	})
 
 	app.Post("/users", func(c *fiber.Ctx)error {
+		var user models.User
+
+		c.BodyParser(&user)
 		
-		return c.JSON(&fiber.Map{"data": "Creando usuario",
+		coll := client.Database("gomongodb").Collection("users")
+		coll.InsertOne(context.TODO(), bson.D{{Key: "name", Value: user.Name}})
+
+		return c.JSON(&fiber.Map{"data": "Guardando usuario",
 		})
 	})
 
